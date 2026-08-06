@@ -70,6 +70,10 @@ def try_start_scheduled_market_sync() -> str | None:
     """
     from ui.async_runner import run_async
     from ui.background_jobs import is_any_job_running, start_market_sync_job
+    from ui.helpers import _ui_scheduled_jobs_disabled
+
+    if _ui_scheduled_jobs_disabled():
+        return None
 
     slot = due_scheduled_sync_slot()
     if slot is None or is_any_job_running():

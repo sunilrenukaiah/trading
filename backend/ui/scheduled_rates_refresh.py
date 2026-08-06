@@ -61,6 +61,11 @@ def try_refresh_applicable_rates() -> dict | None:
     """
     Refresh statutory rates when due. Returns summary dict or None if skipped.
     """
+    from ui.helpers import _ui_scheduled_jobs_disabled
+
+    if _ui_scheduled_jobs_disabled():
+        return None
+
     if not due_rates_refresh():
         return None
 

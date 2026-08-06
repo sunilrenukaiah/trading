@@ -174,7 +174,9 @@ async def seed_instruments(session: AsyncSession) -> None:
             )
         )
     await session.commit()
-    await ensure_market_data_instruments(session)
+    # Do not call ensure_market_data_instruments here — it resolves NIFTY250 via NSE
+    # and can hang for minutes on Streamlit Cloud (non-India IP / cold network).
+    # Market sync / cloud jobs expand the universe when they run.
 
 
 async def seed_paper_account(session: AsyncSession) -> None:

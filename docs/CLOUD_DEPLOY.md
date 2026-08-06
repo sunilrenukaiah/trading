@@ -37,6 +37,8 @@ postgresql+asyncpg://USER:PASSWORD@HOST/DB?ssl=require
 ```toml
 DATABASE_URL = "postgresql+asyncpg://USER:PASSWORD@HOST/DB?ssl=require"
 DATA_PROVIDER = "nse"
+# Cron runs in GitHub Actions — do not start NIFTY250 sync inside the UI process
+DISABLE_UI_SCHEDULED_SYNC = "1"
 ```
 
 Optional overrides (same names as `backend/env.example`):

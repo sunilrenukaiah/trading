@@ -66,12 +66,22 @@ def _load_nifty50_file() -> list[str]:
 
 
 def _fetch_nse_symbols(index_name: str) -> list[str]:
+    from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
     from nsefeed.indices import constituent_stock_list
 
-    df = constituent_stock_list("BroadMarketIndices", index_name)
-    if "Symbol" not in df.columns:
-        raise ValueError(f"No Symbol column for {index_name}")
-    return [str(s).strip().upper() for s in df["Symbol"].tolist() if s]
+    def _call() -> list[str]:
+        df = constituent_stock_list("BroadMarketIndices", index_name)
+        if "Symbol" not in df.columns:
+            raise ValueError(f"No Symbol column for {index_name}")
+        return [str(s).strip().upper() for s in df["Symbol"].tolist() if s]
+
+    # Streamlit Cloud / non-India IPs often hang talking to NSE.
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        future = pool.submit(_call)
+        try:
+            return future.result(timeout=20)
+        except FuturesTimeout as exc:
+            raise TimeoutError(f"NSE constituent fetch timed out for {index_name}") from exc
 
 
 @dataclass(frozen=True)
@@ -165,7 +175,12 @@ def get_universe_symbols(universe: str = DEFAULT_UNIVERSE) -> tuple[str, ...]:
         except Exception:
             symbols = _load_nifty50_file()
     else:
-        symbols = _resolve_from_nse(key)
+        try:
+            symbols = _resolve_from_nse(key)
+        except Exception:
+            # Cloud / blocked NSE: fall back to file + any on-disk cache.
+            cached = _read_cache_file()
+            symbols = cached.universes.get(key) or _load_nifty50_file()
 
     return tuple(s.upper() for s in symbols if s)
 

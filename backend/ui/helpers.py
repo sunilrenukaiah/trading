@@ -39,6 +39,60 @@ BACKEND_DIR = Path(__file__).resolve().parent.parent
 from ui.async_runner import run_async
 
 
+def _ui_scheduled_jobs_disabled() -> bool:
+    """When set (Streamlit Cloud secrets), cron is handled by GitHub Actions instead."""
+    import os
+
+    raw = os.environ.get("DISABLE_UI_SCHEDULED_SYNC", "").strip().lower()
+    return raw in {"1", "true", "yes", "on"}
+
+
+def _prepare_database_url_from_runtime() -> None:
+    """Map Streamlit secrets → env and normalize Neon URLs for asyncpg."""
+    import os
+
+    try:
+        import streamlit as st
+
+        for key in (
+            "DATABASE_URL",
+            "DATA_PROVIDER",
+            "DAILY_TRADING_BUDGET_INR",
+            "BACKFILL_DAYS",
+            "MARKET_DATA_UNIVERSE",
+            "DISABLE_UI_SCHEDULED_SYNC",
+        ):
+            try:
+                if key in st.secrets:
+                    os.environ[key] = str(st.secrets[key])
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    url = (os.environ.get("DATABASE_URL") or "").strip()
+    if not url:
+        return
+    if url.startswith("postgresql://") and "+asyncpg" not in url.split("://", 1)[0]:
+        url = "postgresql+asyncpg://" + url[len("postgresql://") :]
+    url = url.replace("sslmode=require", "ssl=require")
+    url = url.replace("sslmode=required", "ssl=require")
+    os.environ["DATABASE_URL"] = url
+
+    from app.config import settings
+
+    settings.database_url = url
+
+    # Drop lazy UI engine so the next session uses the updated URL.
+    try:
+        from app.db import ui_session as ui_sess
+
+        ui_sess._ui_engine = None  # noqa: SLF001
+        ui_sess.UISessionLocal = None
+    except Exception:
+        pass
+
+
 def run_migrations() -> None:
     subprocess.run(
         [sys.executable, "-m", "alembic", "upgrade", "head"],
@@ -57,14 +111,18 @@ async def _bootstrap_if_needed() -> None:
 def ensure_ready() -> bool:
     try:
         import streamlit as st
-
-        if st.session_state.get("_db_ready_checked"):
-            return bool(st.session_state.get("_db_ready", False))
     except Exception:
-        pass
+        st = None
+
+    if st is not None and st.session_state.get("_db_ready_checked"):
+        return bool(st.session_state.get("_db_ready", False))
 
     ready = False
     try:
+        if st is not None:
+            st.caption("Connecting to database…")
+        _prepare_database_url_from_runtime()
+
         from app.logging_setup import configure_app_logging
         from app.services.applicable_rates import get_applicable_rates
         from app.services.audit_handlers import install_audit_hooks
@@ -72,19 +130,23 @@ def ensure_ready() -> bool:
         configure_app_logging()
         install_audit_hooks()
         get_applicable_rates()
+        if st is not None:
+            st.caption("Running database migrations…")
         run_migrations()
-        run_async(_bootstrap_if_needed())
+        if st is not None:
+            st.caption("Seeding paper account…")
+        # Keep bootstrap short — do not wait an hour on a bad DB URL.
+        run_async(_bootstrap_if_needed(), timeout=120, retries=0)
         ready = True
     except Exception:
         ready = False
 
-    try:
-        import streamlit as st
-
-        st.session_state["_db_ready_checked"] = True
-        st.session_state["_db_ready"] = ready
-    except Exception:
-        pass
+    if st is not None:
+        try:
+            st.session_state["_db_ready_checked"] = True
+            st.session_state["_db_ready"] = ready
+        except Exception:
+            pass
     return ready
 
 
