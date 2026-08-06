@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import importlib
+import importlib.util
 import sys
 import threading
+import time
 
 _MARKET_DATA_STATS = "app.services.market_data_stats"
 _APP_DEFAULTS = "app.defaults"
@@ -111,17 +113,16 @@ def is_hot_reload_import_error(exc: BaseException) -> bool:
 
 def import_module_safe(name: str):
     """Import under the reload lock with short retries (fragment vs hot reload)."""
-    import time
-
     last: BaseException | None = None
     for attempt in range(5):
         with _reimport_lock:
             try:
                 return importlib.import_module(name)
-            except (AttributeError, KeyError) as exc:
+            except (AttributeError, KeyError, ImportError) as exc:
                 last = exc
                 if not is_hot_reload_import_error(exc):
                     raise
+                _purge_module_tree(name)
         time.sleep(0.03 * (attempt + 1))
     if last is not None:
         raise last
@@ -133,6 +134,31 @@ def _purge_module_tree(name: str) -> None:
     for key in list(sys.modules):
         if key == name or key.startswith(f"{name}."):
             sys.modules.pop(key, None)
+
+
+def _import_with_sys_modules_stub(name: str):
+    """Import with the module kept in sys.modules for the duration of exec.
+
+    Retries at the caller handle Streamlit popping the entry mid-import
+    (dataclasses then sees None and raises AttributeError on ``__dict__``).
+    """
+    spec = importlib.util.find_spec(name)
+    if spec is None or spec.loader is None:
+        return importlib.import_module(name)
+
+    module = importlib.util.module_from_spec(spec)
+    # Re-bind on every attempt so a concurrent pop cannot leave None in place
+    # while dataclasses is evaluating annotations.
+    sys.modules[name] = module
+    try:
+        spec.loader.exec_module(module)
+    except BaseException:
+        if sys.modules.get(name) is module:
+            sys.modules.pop(name, None)
+        raise
+    # Streamlit may have replaced/removed our entry during exec — restore it.
+    sys.modules[name] = module
+    return module
 
 
 def _purge_app_models() -> None:
@@ -189,11 +215,21 @@ def _force_reimport_unlocked(name: str):
         _purge_app_models()
     else:
         _purge_module_tree(name)
-    try:
-        return importlib.import_module(name)
-    except KeyError:
-        # Another Streamlit rerun may pop the module mid-import; retry once.
-        return importlib.import_module(name)
+    last_exc: BaseException | None = None
+    for attempt in range(5):
+        try:
+            return _import_with_sys_modules_stub(name)
+        except (KeyError, AttributeError, ImportError) as exc:
+            # Streamlit may pop the module mid-import. dataclasses.dataclass
+            # needs sys.modules[cls.__module__] to exist (None → AttributeError).
+            last_exc = exc
+            if not is_hot_reload_import_error(exc) and not isinstance(exc, KeyError):
+                raise
+            _purge_module_tree(name)
+            time.sleep(0.02 * (attempt + 1))
+            continue
+    assert last_exc is not None
+    raise last_exc
 
 
 def ensure_models_fresh() -> None:
@@ -219,8 +255,11 @@ def ensure_models_fresh() -> None:
 
 def ensure_market_data_stats_fresh() -> None:
     """Guarantee market_data_stats exports exist (Streamlit can cache stale modules)."""
-    module = _force_reimport(_MARKET_DATA_STATS)
     required = ("fetch_market_data_stats", "get_market_data_stats", "MarketDataStats")
+    module = sys.modules.get(_MARKET_DATA_STATS)
+    if module is not None and all(hasattr(module, attr) for attr in required):
+        return
+    module = _force_reimport(_MARKET_DATA_STATS)
     if not all(hasattr(module, attr) for attr in required):
         module = _force_reimport(_MARKET_DATA_STATS)
     missing = [attr for attr in required if not hasattr(module, attr)]
@@ -295,14 +334,17 @@ def ensure_recommendation_helpers_fresh() -> None:
 
 def ensure_nifty_universe_fresh() -> None:
     """Guarantee nifty_universe exports match on-disk code (daily cache helpers)."""
-    for dependent in _NIFTY_UNIVERSE_DEPENDENTS:
-        sys.modules.pop(dependent, None)
-    module = _force_reimport(_NIFTY_UNIVERSE)
     required = (
         "ensure_universe_symbols_fresh",
         "is_universe_cache_fresh",
         "universe_cache_refreshed_at",
     )
+    module = sys.modules.get(_NIFTY_UNIVERSE)
+    if module is not None and all(hasattr(module, attr) for attr in required):
+        return
+    for dependent in _NIFTY_UNIVERSE_DEPENDENTS:
+        sys.modules.pop(dependent, None)
+    module = _force_reimport(_NIFTY_UNIVERSE)
     missing = [attr for attr in required if not hasattr(module, attr)]
     if missing:
         module = _force_reimport(_NIFTY_UNIVERSE)
@@ -313,12 +355,16 @@ def ensure_nifty_universe_fresh() -> None:
 
 def ensure_recommendation_engine_fresh() -> None:
     """Reload recommendation_engine before cache/UI dependents import new exports."""
-    module = _force_reimport(_RECOMMENDATION_ENGINE)
     required = (
+        "PatternRanking",
         "StockRecommendation",
         "coerce_stock_recommendation",
         "normalize_recommendation_report",
     )
+    module = sys.modules.get(_RECOMMENDATION_ENGINE)
+    if module is not None and all(hasattr(module, attr) for attr in required):
+        return
+    module = _force_reimport(_RECOMMENDATION_ENGINE)
     missing = [attr for attr in required if not hasattr(module, attr)]
     if missing:
         module = _force_reimport(_RECOMMENDATION_ENGINE)
@@ -332,14 +378,20 @@ def ensure_recommendation_engine_fresh() -> None:
 def ensure_recommendation_cache_fresh() -> None:
     """Guarantee recommendation_cache exports match on-disk code (Streamlit caches stale modules)."""
     ensure_recommendation_engine_fresh()
-    sys.modules.pop(_RECOMMENDATION_CACHE, None)
-    module = importlib.import_module(_RECOMMENDATION_CACHE)
     required = (
         "load_cached_recommendations",
         "save_recommendation_snapshot",
         "load_midday_cached_recommendations_for_ui",
         "save_midday_recommendation_snapshot",
     )
+    module = sys.modules.get(_RECOMMENDATION_CACHE)
+    if module is not None and all(hasattr(module, attr) for attr in required):
+        import inspect
+
+        sig = inspect.signature(module.load_cached_recommendations)
+        if "prediction_date" in sig.parameters:
+            return
+    module = _force_reimport(_RECOMMENDATION_CACHE)
     missing = [attr for attr in required if not hasattr(module, attr)]
     if missing:
         module = _force_reimport(_RECOMMENDATION_CACHE)
@@ -420,19 +472,22 @@ def ensure_trade_tax_fresh() -> None:
     """Guarantee trade_tax dual-broker exports match on-disk code (Streamlit caches stale modules)."""
     ensure_defaults_fresh()
     ensure_applicable_rates_fresh()
-    _purge_module_tree(_BROKER_DELIVERY_PROFILES)
-    _purge_module_tree(_TRADE_TAX)
-    module = importlib.import_module(_TRADE_TAX)
     required = (
         "DualBrokerRealizedPnlSummary",
         "RealizedPnlAfterTaxSummary",
         "summarize_sell_trades_dual_broker",
     )
+    module = sys.modules.get(_TRADE_TAX)
+    if module is not None and all(hasattr(module, attr) for attr in required):
+        return
+    # Locked stub-import (retries dataclass sys.modules races) — never purge+import
+    # outside the lock; that triggered AttributeError on @dataclass.
+    _force_reimport(_BROKER_DELIVERY_PROFILES)
+    module = _force_reimport(_TRADE_TAX)
     missing = [attr for attr in required if not hasattr(module, attr)]
     if missing:
-        _purge_module_tree(_BROKER_DELIVERY_PROFILES)
-        _purge_module_tree(_TRADE_TAX)
-        module = importlib.import_module(_TRADE_TAX)
+        _force_reimport(_BROKER_DELIVERY_PROFILES)
+        module = _force_reimport(_TRADE_TAX)
         missing = [attr for attr in required if not hasattr(module, attr)]
     if missing:
         raise ImportError(f"{_TRADE_TAX} missing exports after refresh: {missing}")
@@ -440,22 +495,31 @@ def ensure_trade_tax_fresh() -> None:
 
 def ensure_fresh_ui_modules() -> None:
     """Rebind UI exports after code changes without restarting Streamlit."""
-    ensure_models_fresh()
-    ensure_defaults_fresh()
-    ensure_applicable_rates_fresh()
-    ensure_nifty_universe_fresh()
-    for name in (_MARKET_DATA_STATS, _INTRADAY_CHART, _LIVE_QUOTES):
-        _force_reimport(name)
-    ensure_market_data_stats_fresh()
-    ensure_budget_portfolio_fresh()
-    ensure_trade_tax_fresh()
-    ensure_live_quotes_fresh()
-    _force_reimport(_BUDGET_ALLOCATOR)
-    ensure_intraday_chart_fresh()
-    ensure_recommendation_cache_fresh()
-    ensure_job_api_fresh()
-    import_module_safe(_TRADE_PLANS)
-    for name in _UI_MODULE_CHAIN:
-        if name in _FORCE_REIMPORT:
-            continue
-        _refresh_module(name)
+    last: BaseException | None = None
+    for attempt in range(3):
+        try:
+            ensure_models_fresh()
+            ensure_defaults_fresh()
+            ensure_applicable_rates_fresh()
+            ensure_nifty_universe_fresh()
+            ensure_market_data_stats_fresh()
+            ensure_budget_portfolio_fresh()
+            ensure_trade_tax_fresh()
+            ensure_live_quotes_fresh()
+            _force_reimport(_BUDGET_ALLOCATOR)
+            ensure_intraday_chart_fresh()
+            ensure_recommendation_cache_fresh()
+            ensure_job_api_fresh()
+            import_module_safe(_TRADE_PLANS)
+            for name in _UI_MODULE_CHAIN:
+                if name in _FORCE_REIMPORT:
+                    continue
+                _refresh_module(name)
+            return
+        except (AttributeError, KeyError, ImportError) as exc:
+            last = exc
+            if not is_hot_reload_import_error(exc):
+                raise
+            time.sleep(0.05 * (attempt + 1))
+    if last is not None:
+        raise last

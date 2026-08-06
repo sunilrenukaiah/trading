@@ -1,8 +1,17 @@
 """NIFTY Paper Trading — Streamlit UI."""
 
+from __future__ import annotations
+
+import sys
 import time
 from datetime import datetime, timedelta
 from decimal import Decimal
+from pathlib import Path
+
+# Streamlit Cloud runs with repo root as cwd; local run_app uses backend/.
+_BACKEND_ROOT = Path(__file__).resolve().parent.parent
+if str(_BACKEND_ROOT) not in sys.path:
+    sys.path.insert(0, str(_BACKEND_ROOT))
 
 import pandas as pd
 import plotly.graph_objects as go
