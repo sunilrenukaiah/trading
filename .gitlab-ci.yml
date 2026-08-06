@@ -1,0 +1,57 @@
+stages:
+  - test
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+.integration_test_template: &integration_test
+  stage: test
+  image: python:3.11-slim
+  cache:
+    key:
+      files:
+        - backend/pyproject.toml
+    paths:
+      - .cache/pip
+  before_script:
+    - cd backend
+    - pip install -e ".[dev]"
+  script:
+    - ./scripts/run_tests.sh all
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+
+.post_deploy_template: &post_deploy
+  stage: test
+  image: python:3.11-slim
+  services:
+    - name: postgres:15-alpine
+      alias: postgres
+  variables:
+    POSTGRES_DB: trading
+    POSTGRES_USER: trading
+    POSTGRES_PASSWORD: trading
+    DATABASE_URL: postgresql+asyncpg://trading:trading@postgres:5432/trading
+  cache:
+    key:
+      files:
+        - backend/pyproject.toml
+    paths:
+      - .cache/pip
+  before_script:
+    - cd backend
+    - pip install -e ".[dev]"
+  script:
+    - ./scripts/run_tests.sh post_deploy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+
+integration-tests:
+  <<: *integration_test
+
+post-deploy-tests:
+  <<: *post_deploy

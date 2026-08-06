@@ -1,0 +1,12 @@
+# Lab startup checklist (port 8502) — used by scripts/lab/_lab_streamlit.py
+
+python_version | 3.11 | yes
+venv | backend/.venv | yes
+pip_packages | requirements-migrate.txt | yes
+env_file | backend/.env | yes
+postgres | localhost:5432 | yes
+database | connect | yes
+migrations | alembic_head | yes
+port_free | 8502 | no
+instance_guard | lab:8502 | yes
+streamlit | import | yes

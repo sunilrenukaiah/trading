@@ -1,0 +1,24 @@
+{
+  "broker_profile": "sharekhan_delivery",
+  "brokerage_min_per_share_inr": 0.01,
+  "brokerage_rate": 0.003,
+  "conservative_exit_ratio": 0.5,
+  "exchange_txn_rate": 2.97e-05,
+  "gst_rate": 0.18,
+  "last_refreshed_at": "2026-08-06T09:36:18.223643+05:30",
+  "last_refreshed_date": "2026-08-06",
+  "notes": [
+    "No STT delivery rate parsed from zerodha_stt",
+    "No STCG rate parsed from bajaj_stcg"
+  ],
+  "sebi_turnover_rate": 1e-07,
+  "sources": [
+    "zerodha_stt",
+    "cleartax_stcg",
+    "bajaj_stcg",
+    "stamp_duty_statutory_default"
+  ],
+  "stamp_duty_rate": 0.00015,
+  "stcg_tax_rate": 0.2,
+  "stt_rate": 0.001
+}

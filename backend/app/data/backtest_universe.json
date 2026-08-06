@@ -1,0 +1,21 @@
+{
+  "symbols": [
+    "RELIANCE",
+    "TCS",
+    "HDFCBANK",
+    "ICICIBANK",
+    "INFY",
+    "ITC",
+    "BHARTIARTL",
+    "SBIN",
+    "KOTAKBANK",
+    "LT",
+    "AXISBANK",
+    "HINDUNILVR",
+    "MARUTI",
+    "TATASTEEL",
+    "SUNPHARMA"
+  ],
+  "lookback_days": 20,
+  "eval_days": 30
+}

@@ -1,0 +1,26 @@
+---
+description: Never delete modules or major UI features without explicit user confirmation
+alwaysApply: true
+---
+
+# No module deletion without confirmation
+
+## Scope
+
+Applies to **all** refactors, performance work, lazy-loading, and cleanup — not only explicit "delete" requests.
+
+## Required behavior
+
+- **Do not delete** Python modules, UI pages, Streamlit tabs, service files, display helpers, tests, or docs **unless the user explicitly asks to remove them**.
+- **Lazy loading ≠ deletion.** When optimizing performance, defer work (load on demand, section radios, refresh buttons) — **keep the module, charts, tables, and routes intact**.
+- **Do not remove** user-facing features and replace them with empty states or "click to load" without the user agreeing to that UX trade-off.
+- If a change would **remove, rename, or merge** a module/feature, **stop and ask first** — propose the plan and wait for confirmation.
+
+## Allowed without asking
+
+- Removing dead code **inside** a file when replacing it in the same change (same feature, same module).
+- Skipping auto-load on first visit **only when** the user requested lazy loading for that area and the feature still renders after an explicit action (and document the UX change).
+
+## When in doubt
+
+Prefer **defer / lazy-load / gate behind a button** over **delete**. If unsure whether something counts as deletion, ask.

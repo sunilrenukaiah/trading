@@ -1,0 +1,13 @@
+[server]
+headless = true
+# Keep the browser websocket alive while background jobs run.
+enableWebsocketCompression = true
+# Larger payloads (dataframes / charts) after full page loads.
+maxMessageSize = 500
+
+[browser]
+gatherUsageStats = false
+
+[runner]
+# Prefer completing one rerun over stacking stale ones (helps blank-tab recoveries).
+fastReruns = true

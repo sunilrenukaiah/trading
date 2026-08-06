@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/run-integration-tests.sh",
+        "matcher": "backend/(app|ui)/.*\\.py$"
+      }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/stop-run-tests.sh",
+        "loop_limit": 2
+      }
+    ]
+  }
+}

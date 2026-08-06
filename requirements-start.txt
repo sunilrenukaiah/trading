@@ -1,0 +1,19 @@
+# Startup health checklist — run before each app session
+# Command: python scripts/startup_checklist.py
+# Or use: python scripts/run_app.py  (checks then launches Streamlit)
+#
+# Works with Cursor and PyCharm Community (same venv + Postgres checks).
+#
+# Format: CHECK_TYPE | argument | required (yes/no)
+# Lines starting with # are ignored.
+
+python_version | 3.11 | yes
+venv | backend/.venv | yes
+pip_packages | requirements-migrate.txt | yes
+env_file | backend/.env | yes
+postgres | localhost:5432 | yes
+database | connect | yes
+migrations | alembic_head | yes
+port_free | 8501 | no
+instance_guard | main:8501 | yes
+streamlit | import | yes

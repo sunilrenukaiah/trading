@@ -1,0 +1,12 @@
+{
+  "python.defaultInterpreterPath": "C:/Data/trading/trading/backend/.venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true,
+  "python.analysis.extraPaths": [
+    "backend"
+  ],
+  "terminal.integrated.cwd": "C:/Data/trading/trading/backend",
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Streamlit Dashboard (with health check)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "C:/Data/trading/trading/scripts/run_app.py",
+      "cwd": "C:/Data/trading/trading",
+      "python": "C:/Data/trading/trading/backend/.venv/Scripts/python.exe",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "FastAPI (optional)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "app.main:app",
+        "--reload",
+        "--port",
+        "8000"
+      ],
+      "cwd": "C:/Data/trading/trading/backend",
+      "python": "C:/Data/trading/trading/backend/.venv/Scripts/python.exe",
+      "console": "integratedTerminal"
+    }
+  ]
+}

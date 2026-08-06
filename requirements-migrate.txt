@@ -1,0 +1,27 @@
+# Migration checklist — Python packages (auto-installed by Setup.py)
+# System prerequisites (install manually if Setup.py cannot auto-install):
+#   - Python 3.11+     https://www.python.org/downloads/  (check "Add to PATH" on Windows)
+#   - PostgreSQL 15+   https://www.postgresql.org/download/
+#   - Git              https://git-scm.com/download/win
+#   - Cursor           https://cursor.com  →  python Setup.py cursor
+#   - PyCharm CE       https://www.jetbrains.com/pycharm/download/  →  python Setup.py pycharm
+#
+# After Setup.py: backend/.env is created from backend/env.example if missing.
+
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+sqlalchemy[asyncio]>=2.0.36
+asyncpg>=0.30.0
+alembic>=1.14.0
+pydantic-settings>=2.6.0
+yfinance>=0.2.50
+nsefeed>=1.0.0
+httpx>=0.28.0
+python-dateutil>=2.9.0
+streamlit>=1.40.0
+plotly>=5.24.0
+pandas>=2.2.0
+
+# Dev / test (optional but recommended for contributors)
+pytest>=8.0
+pytest-asyncio>=0.24.0

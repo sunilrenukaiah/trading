@@ -1,0 +1,45 @@
+[project]
+name = "trading-backend"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30.0",
+    "alembic>=1.14.0",
+    "pydantic-settings>=2.6.0",
+    "yfinance>=0.2.50",
+    "nsefeed>=1.0.0",
+    "httpx>=0.28.0",
+    "python-dateutil>=2.9.0",
+    "streamlit>=1.40.0",
+    "plotly>=5.24.0",
+    "pandas>=2.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*", "ui*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+addopts = "-ra --strict-markers"
+markers = [
+    "quick: fast import and contract checks (no database)",
+    "db: requires PostgreSQL",
+    "post_deploy: post-deployment API and UI smoke tests (requires PostgreSQL or POST_DEPLOY_API_URL)",
+    "ui_load: Streamlit AppTest page-load simulation (requires PostgreSQL)",
+]

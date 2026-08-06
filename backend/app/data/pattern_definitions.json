@@ -1,0 +1,476 @@
+{
+  "cs_morning_star": {
+    "category": "Candlestick",
+    "formula": "• Downtrend (close < SMA20)\n• C1: bearish long body (body/range ≥ 0.55)\n• C2: small body (body/range ≤ 0.35)\n• C3: bullish long body closing above C1 midpoint",
+    "explanation": "A three-candle bullish reversal after a decline: a long red candle, a small indecision candle, then a strong green candle that recovers past the first candle's midpoint. Traders watch for confirmation that selling pressure has exhausted and buyers are stepping in.",
+    "signal": "BULLISH"
+  },
+  "cs_evening_star": {
+    "category": "Candlestick",
+    "formula": "• Uptrend (close > SMA20)\n• C1: bullish long body\n• C2: small body\n• C3: bearish long body closing below C1 midpoint",
+    "explanation": "The bearish mirror of the morning star at the top of an uptrend. A strong green candle is followed by indecision and then a decisive red candle that erases much of the first candle's gains. It warns that momentum may be shifting from buyers to sellers.",
+    "signal": "BEARISH"
+  },
+  "cs_piercing_line": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• C1: bearish; C2: bullish\n• C2 opens below C1 close\n• C2 closes above C1 body midpoint",
+    "explanation": "A two-candle bullish reversal where the second candle gaps lower on the open but rallies to pierce more than halfway into the prior bearish body. It suggests buyers are absorbing supply after a selloff without fully engulfing the previous candle.",
+    "signal": "BULLISH"
+  },
+  "cs_dark_cloud_cover": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• C1: bullish; C2: bearish\n• C2 opens above C1 high (gap up)\n• C2 closes below C1 midpoint but above C1 open",
+    "explanation": "A bearish reversal pattern where a strong up day is followed by a gap-up open that fails and closes deep into the prior candle's body. The 'dark cloud' over the previous bullish candle signals waning upside momentum and potential trend exhaustion.",
+    "signal": "BEARISH"
+  },
+  "cs_bullish_harami": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• C1: bearish long body\n• C2: bullish with body fully inside C1 body",
+    "explanation": "After a decline, a large bearish candle is followed by a smaller bullish candle contained within the prior body. The pattern reflects slowing selling and indecision that can precede a bounce, though confirmation on the next bar is often sought.",
+    "signal": "BULLISH"
+  },
+  "cs_bearish_harami": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• C1: bullish long body\n• C2: bearish with body fully inside C1 body",
+    "explanation": "At the top of a rally, a large bullish candle is followed by a smaller bearish candle nested inside it. Buyers lose follow-through and the market pauses, hinting that the uptrend may be losing steam.",
+    "signal": "BEARISH"
+  },
+  "cs_three_white_soldiers": {
+    "category": "Candlestick",
+    "formula": "• Three consecutive bullish long bodies\n• Each wick ≤ its body size\n• Each close higher than prior; opens stay within prior body range",
+    "explanation": "Three strong green candles with minimal upper/lower shadows march higher in sequence. This classic continuation or reversal signal shows sustained buying pressure and orderly upward progress.",
+    "signal": "BULLISH"
+  },
+  "cs_three_black_crows": {
+    "category": "Candlestick",
+    "formula": "• Three consecutive bearish long bodies\n• Each wick ≤ its body size\n• Each close lower than prior",
+    "explanation": "Three consecutive long red candles with controlled wicks signal persistent selling. Often seen after an uptrend, it indicates bears have taken control and lower prices may follow.",
+    "signal": "BEARISH"
+  },
+  "cs_inverted_hammer": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• Upper wick ≥ 2× body; lower wick ≤ 0.5× body\n• Body > 0",
+    "explanation": "A single candle with a long upper shadow and small lower shadow appears after a decline. Buyers tested higher prices during the session; if confirmed by a follow-through rally, it can mark a bullish reversal.",
+    "signal": "BULLISH"
+  },
+  "cs_shooting_star": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• Upper wick ≥ 2× body; lower wick ≤ 0.5× body\n• Body > 0",
+    "explanation": "After an advance, price spikes higher intraday but closes near the open, leaving a long upper wick. The rejection of higher prices suggests sellers are stepping in and a pullback or reversal may be near.",
+    "signal": "BEARISH"
+  },
+  "cs_hanging_man": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• Lower wick ≥ 2× body; upper wick ≤ 0.5× body\n• Body > 0",
+    "explanation": "Visually similar to a hammer but occurring after a rally rather than a decline. The long lower shadow shows intraday selling pressure that was bought back, warning that the uptrend may be vulnerable.",
+    "signal": "BEARISH"
+  },
+  "cs_dragonfly_doji": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• Doji (body/range ≤ 0.1)\n• Long lower wick (≥ 2× body); upper wick ≤ body",
+    "explanation": "A doji with open, high, and close clustered near the top and a pronounced lower tail after a downtrend. It shows sellers pushed price down but buyers reclaimed control by the close, often preceding a bounce.",
+    "signal": "BULLISH"
+  },
+  "cs_bullish_abandoned_baby": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• C1: bearish long body; C2: doji; C3: bullish\n• Gap down from C1 to C2; gap up from C2 to C3",
+    "explanation": "A rare three-candle reversal with a doji isolated by gaps on both sides after a selloff. The abandoned doji star signals a sharp sentiment shift and strong bullish reversal potential when gaps confirm separation.",
+    "signal": "BULLISH"
+  },
+  "cs_bearish_abandoned_baby": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• C1: bullish long body; C2: doji; C3: bearish\n• Gap up from C1 to C2; gap down from C2 to C3",
+    "explanation": "The bearish counterpart: a doji gaps away from a strong up candle and is followed by a gap-down bearish candle. The isolated star marks a dramatic loss of bullish momentum at a top.",
+    "signal": "BEARISH"
+  },
+  "cs_three_inside_up": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• C1: bearish long body; C2: bullish harami inside C1\n• C3: bullish close above C1 body top",
+    "explanation": "A harami setup confirmed by a third candle that breaks above the first candle's range. The sequence shows indecision after a decline resolving to the upside with a clear bullish breakout.",
+    "signal": "BULLISH"
+  },
+  "cs_three_inside_down": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• C1: bullish long body; C2: bearish harami inside C1\n• C3: bearish close below C1 body bottom",
+    "explanation": "A bearish harami followed by a breakdown below the first candle's body. After stalling at highs, sellers regain control and confirm the reversal with the third candle.",
+    "signal": "BEARISH"
+  },
+  "cs_three_outside_up": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• C1: bearish; C2: bullish engulfing C1 body\n• C3: bullish close above C2 body top",
+    "explanation": "A bullish engulfing pattern followed by another strong up day. The two-step confirmation shows buyers overwhelming sellers and continuing to push price higher.",
+    "signal": "BULLISH"
+  },
+  "cs_three_outside_down": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• C1: bullish; C2: bearish engulfing C1 body\n• C3: bearish close below C2 body bottom",
+    "explanation": "A bearish engulfing confirmed by a third down candle. Sellers take control in the second bar and extend the decline in the third, validating the top reversal.",
+    "signal": "BEARISH"
+  },
+  "cs_bullish_kicker": {
+    "category": "Candlestick",
+    "formula": "• C1: bearish; C2: bullish long body\n• C2 open > C1 open and C2 close > C1 close (sharp gap reversal)",
+    "explanation": "An abrupt sentiment flip: a bearish candle is immediately followed by a gap-up bullish candle that opens above the prior open and closes higher still. The kicker signals a violent shift from bearish to bullish control.",
+    "signal": "BULLISH"
+  },
+  "cs_bearish_kicker": {
+    "category": "Candlestick",
+    "formula": "• C1: bullish; C2: bearish long body\n• C2 open < C1 open and C2 close < C1 close (sharp gap reversal)",
+    "explanation": "The mirror kicker at a top: bullish candle then a gap-down bearish candle opening below the prior open and closing lower. It reflects a sudden reversal in favor of sellers.",
+    "signal": "BEARISH"
+  },
+  "cs_tweezer_bottom": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• C1: bearish; C2: bullish\n• C1 low ≈ C2 low (within 0.4% tolerance)",
+    "explanation": "Two candles share nearly the same low after a decline—a bearish bar followed by a bullish one. The matching lows show support holding at a key level and a potential double-bottom style reversal.",
+    "signal": "BULLISH"
+  },
+  "cs_tweezer_top": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• C1: bullish; C2: bearish\n• C1 high ≈ C2 high (within 0.4% tolerance)",
+    "explanation": "Two candles form matching highs at the end of a rally. The shared peak suggests resistance and failed follow-through, often preceding a pullback.",
+    "signal": "BEARISH"
+  },
+  "cs_rising_three_methods": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• C1: bullish long body; C2–C4: bearish, range within C1 high/low\n• C5: bullish long body closing above C1 high",
+    "explanation": "A bullish continuation pattern: one strong up day, a brief pause of small down days inside its range, then a breakout higher. It reflects a healthy pullback within an uptrend before resumption.",
+    "signal": "BULLISH"
+  },
+  "cs_bearish_mat_hold": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• C1: bearish long body; C2–C4: bullish, range within C1 high/low\n• C5: bearish long body closing below C1 low",
+    "explanation": "The bearish mat hold (falling three methods) shows a strong down move, a shallow corrective rally contained in the first candle's range, then a breakdown. Bears reassert control after a brief pause.",
+    "signal": "BEARISH"
+  },
+  "cs_bullish_mat_hold": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• Same structure as rising three methods: pause inside C1, C5 closes above C1 high",
+    "explanation": "In an uptrend, price consolidates with small bearish bars inside a prior bullish range before breaking out higher. It confirms trend continuation rather than reversal.",
+    "signal": "BULLISH"
+  },
+  "cs_concealing_baby_swallow": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• C1–C2: bearish long bodies; gap down into C3\n• C4: bearish long body whose body engulfs C3 body",
+    "explanation": "A four-candle rare bullish reversal after heavy selling, ending with a bearish candle that fully covers the prior small body. Despite the red close, the structure signals selling exhaustion and a potential bottom.",
+    "signal": "BULLISH"
+  },
+  "cs_bullish_separating_lines": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• C1: bearish; C2: bullish\n• C1 open ≈ C2 open (within 0.4%)",
+    "explanation": "Two candles share the same opening price but opposite colors in an uptrend—a bearish day followed by a bullish day from the same level. It suggests buyers quickly absorbed the dip and the trend remains intact.",
+    "signal": "BULLISH"
+  },
+  "cs_bullish_belt_hold": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• Bullish long body; low ≈ open\n• Upper wick ≤ 0.3× body",
+    "explanation": "A strong bullish candle opens at its low and closes near its high after a decline. The lack of lower shadow shows immediate buying from the open, signaling bullish conviction.",
+    "signal": "BULLISH"
+  },
+  "cs_bearish_belt_hold": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• Bearish long body; high ≈ open\n• Lower wick ≤ 0.3× body",
+    "explanation": "After a rally, a bearish candle opens at its high and sells off with minimal upper wick. Sellers dominate from the open, warning of near-term downside pressure.",
+    "signal": "BEARISH"
+  },
+  "cs_bullish_three_line_strike": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• C1–C3: consecutive bullish long bodies\n• C4: bearish long body opening above C3 body top, closing below C1 body bottom",
+    "explanation": "Three up days are followed by one large down day that retraces all three gains. In this implementation it is treated as a bullish continuation shakeout—buyers may re-enter after the sharp one-day flush.",
+    "signal": "BULLISH"
+  },
+  "cs_bearish_three_line_strike": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• C1–C3: consecutive bearish long bodies\n• C4: bullish long body opening below C3 body bottom, closing above C1 body top",
+    "explanation": "Three down days are erased by one strong bullish candle in a downtrend. The pattern captures a sharp counter-rally that may signal bearish exhaustion or a short-covering bounce within the decline.",
+    "signal": "BEARISH"
+  },
+  "cs_ladder_bottom": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• C1–C3: three bearish long bodies\n• C4: small body\n• C5: bullish long body",
+    "explanation": "A staircase of three down candles slows with a small body, then reverses with a strong bullish close. The ladder bottom marks decelerating selling and emerging demand at lows.",
+    "signal": "BULLISH"
+  },
+  "cs_meeting_lines": {
+    "category": "Candlestick",
+    "formula": "• Downtrend\n• C1: bearish long body; C2: bullish long body\n• C2 opens below C1 close; C1 close ≈ C2 close",
+    "explanation": "Two long opposite-color candles meet at nearly the same closing price after a decline. The shared close suggests equilibrium between buyers and sellers and a potential bullish reversal from support.",
+    "signal": "BULLISH"
+  },
+  "cs_bearish_doji_star": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• C1: bullish long body\n• C2: doji (body/range ≤ 0.1)",
+    "explanation": "A strong up day is followed by a doji, signaling indecision at highs. The star warns that the uptrend may stall and a bearish reversal could follow if sellers confirm.",
+    "signal": "BEARISH"
+  },
+  "cs_upside_gap_two_crows": {
+    "category": "Candlestick",
+    "formula": "• Uptrend\n• C1: bullish long body\n• C2–C3: bearish with gap up after C1\n• C3 close < C2 close",
+    "explanation": "After a gap-up rally, two consecutive black crows appear with the second closing lower than the first. The pattern suggests the gap may fail and the uptrend is losing momentum.",
+    "signal": "BEARISH"
+  },
+  "p10_doji": {
+    "category": "Candlestick",
+    "formula": "• Body/range ≤ 0.1 on last candle\n• Close < SMA20 → bullish; close > SMA20 → bearish",
+    "explanation": "A doji has a very small body relative to its range, indicating indecision. Context from the 20-day moving average determines bias: after a decline it hints at bullish reversal, after a rally at bearish reversal.",
+    "signal": "BOTH"
+  },
+  "p11_hammer": {
+    "category": "Candlestick",
+    "formula": "• Lower wick ≥ 2× body; upper wick ≤ 0.5× body\n• Below SMA20 → bullish hammer\n• Above SMA20 + bearish body → bearish inverted hammer",
+    "explanation": "The hammer shape shows rejection of lower prices with a long lower shadow. In a downtrend it is bullish; when price is above the SMA20 with a red body, the same shape acts as an inverted hammer warning of weakness.",
+    "signal": "BOTH"
+  },
+  "p7_engulfing": {
+    "category": "Candlestick",
+    "formula": "• Bullish: prior bearish, current bullish body engulfs prior open–close\n• Bearish: prior bullish, current bearish body engulfs prior open–close",
+    "explanation": "The engulfing pattern occurs when one candle's body fully covers the previous candle's body in the opposite direction. It signals a sharp shift in control from buyers to sellers or vice versa.",
+    "signal": "BOTH"
+  },
+  "p4_bb_mean_reversion": {
+    "category": "Bollinger",
+    "formula": "• Bollinger bands (20, 2σ)\n• Close ≤ lower band → bullish\n• Close ≥ upper band → bearish",
+    "explanation": "Price stretched to the outer Bollinger Band often mean-reverts toward the middle band. A close at or beyond the lower band suggests oversold conditions; at the upper band, overbought.",
+    "signal": "BOTH"
+  },
+  "p5_bb_breakout": {
+    "category": "Bollinger",
+    "formula": "• Close crosses above upper band → bullish\n• Close crosses below lower band → bearish\n• Or: close above/below mid with expanding bandwidth and directional close",
+    "explanation": "Breakouts beyond the bands or momentum walks along the band with expanding volatility signal trend continuation. Crossing the upper band bullishly or lower band bearishly confirms directional momentum.",
+    "signal": "BOTH"
+  },
+  "p6_bb_squeeze": {
+    "category": "Bollinger",
+    "formula": "• Bandwidth in lowest 20% of last 20 bars on prior bar\n• Bandwidth expanding on current bar\n• Close above mid → bullish; below mid → bearish",
+    "explanation": "A Bollinger squeeze occurs when volatility contracts to a low level, often before a sharp move. When bands begin expanding, direction is taken from whether price is above or below the middle band.",
+    "signal": "BOTH"
+  },
+  "p1_sma_cross": {
+    "category": "Technical",
+    "formula": "• SMA(5) crosses above SMA(20) → bullish\n• SMA(5) crosses below SMA(20) → bearish",
+    "explanation": "The classic short-term versus medium-term moving average crossover captures changes in trend momentum. A golden cross of the 5-day over the 20-day is bullish; a death cross is bearish.",
+    "signal": "BOTH"
+  },
+  "p2_rsi_momentum": {
+    "category": "Technical",
+    "formula": "• RSI(14) crosses above 50 from at/below → bullish\n• RSI(14) crosses below 50 from at/above → bearish",
+    "explanation": "RSI crossing the 50 midpoint reflects a shift in momentum balance. Above 50 favors bulls; below favors bears, with the crossover marking the transition.",
+    "signal": "BOTH"
+  },
+  "p3_macd_cross": {
+    "category": "Technical",
+    "formula": "• MACD line (12,26,9) crosses above signal → bullish\n• MACD crosses below signal → bearish",
+    "explanation": "The MACD signal-line crossover is a widely used momentum trigger. When the MACD line crosses above its signal line, bullish momentum is building; a cross below indicates weakening momentum.",
+    "signal": "BOTH"
+  },
+  "p8_sma_trend": {
+    "category": "Price action",
+    "formula": "• Close > SMA20 and SMA20 rising → bullish\n• Close < SMA20 and SMA20 falling → bearish",
+    "explanation": "Combines price position relative to the 20-day average with the slope of the average itself. Trading with a rising SMA20 above price, or below a falling SMA20, aligns with the prevailing trend.",
+    "signal": "BOTH"
+  },
+  "p9_swing_structure": {
+    "category": "Price action",
+    "formula": "• Last 5 bars: each high and low higher than prior → bullish\n• Last 5 bars: each high and low lower than prior → bearish",
+    "explanation": "Swing structure reads the sequence of highs and lows over five sessions. Higher highs and higher lows define an uptrend; lower highs and lower lows define a downtrend.",
+    "signal": "BOTH"
+  },
+  "p12_volume_breakout": {
+    "category": "Price action",
+    "formula": "• Close at 20-day high + volume > 1.5× 20-day avg → bullish\n• Close at 20-day low + volume > 1.5× avg → bearish",
+    "explanation": "Breakouts on elevated volume suggest institutional participation and conviction. A new high or low on heavy volume validates the move beyond recent range.",
+    "signal": "BOTH"
+  },
+  "c1_sma_cross_rsi": {
+    "category": "Combination",
+    "formula": "• p1_sma_cross signal active\n• Bullish only if RSI(14) < 70\n• Bearish only if RSI(14) > 30",
+    "explanation": "Filters SMA cross signals with RSI to avoid chasing overbought bull crosses or oversold bear crosses. The combo seeks cleaner entries when momentum is supportive but not exhausted.",
+    "signal": "BOTH"
+  },
+  "c2_macd_sma_trend": {
+    "category": "Combination",
+    "formula": "• p3_macd_cross and p8_sma_trend must agree\n• Both bullish or both bearish; else neutral",
+    "explanation": "Requires MACD momentum and SMA20 trend direction to align before signaling. Confluence reduces whipsaws from indicators that disagree.",
+    "signal": "BOTH"
+  },
+  "c3_engulfing_volume": {
+    "category": "Combination",
+    "formula": "• p7_engulfing signal active\n• Last bar volume > 1.2× 20-day average volume",
+    "explanation": "An engulfing candle must occur on above-average volume to qualify. Volume confirmation adds weight to the reversal signal.",
+    "signal": "BOTH"
+  },
+  "c4_hammer_bb": {
+    "category": "Combination",
+    "formula": "• p11_hammer bullish AND p4_bb_mean_reversion bullish (close at/below lower band)",
+    "explanation": "A hammer at the lower Bollinger Band combines candlestick reversal with statistical oversold context. The dual confirmation targets high-probability bounce setups.",
+    "signal": "BULLISH"
+  },
+  "c5_doji_bb": {
+    "category": "Combination",
+    "formula": "• p10_doji and p4_bb_mean_reversion signals must match direction\n• Both bullish or both bearish; else neutral",
+    "explanation": "Pairs doji indecision at an extreme band with mean-reversion bias. When both point the same way, the setup suggests reversal from a statistically stretched level.",
+    "signal": "BOTH"
+  },
+  "cs_harami_cross": {
+    "category": "Candlestick",
+    "formula": "• C1: long body; C2: doji with body fully inside C1 body\n• Bullish after downtrend; bearish after uptrend",
+    "explanation": "A harami where the second candle is a doji cross nested inside the prior long body. The doji star signals strong indecision after a trend move and often precedes a reversal when trend context confirms.",
+    "signal": "BOTH"
+  },
+  "cs_marubozu": {
+    "category": "Candlestick",
+    "formula": "• Long body (body/range ≥ 0.55)\n• Upper and lower wicks ≤ 5% of body\n• Green → bullish; red → bearish",
+    "explanation": "A marubozu is a full-bodied candle with almost no shadows, showing one-sided control from open to close. Bulls or bears dominate the entire session with minimal rejection at either extreme.",
+    "signal": "BOTH"
+  },
+  "cs_spinning_top": {
+    "category": "Candlestick",
+    "formula": "• Small body (5–35% of range)\n• Upper and lower wicks each ≥ 0.5× body\n• Bias from SMA20 context",
+    "explanation": "A spinning top has a small real body centered between upper and lower shadows, reflecting equilibrium between buyers and sellers. After a trend, it warns of slowing momentum and possible reversal.",
+    "signal": "BOTH"
+  },
+  "cs_high_wave": {
+    "category": "Candlestick",
+    "formula": "• Small body (≤ 35% of range)\n• Both wicks ≥ 25% of total range\n• Bias from SMA20 context",
+    "explanation": "The high-wave candle has an unusually wide range with small body and long wicks on both sides. It shows volatile two-way trade and indecision, often at turning points.",
+    "signal": "BOTH"
+  },
+  "cs_long_legged_doji": {
+    "category": "Candlestick",
+    "formula": "• Doji (body/range ≤ 0.1)\n• Upper and lower wicks each ≥ 2× body\n• Bias from SMA20 context",
+    "explanation": "A doji with exceptionally long upper and lower shadows. Price explored both directions but settled near the open, signaling intense indecision that can mark exhaustion of the prevailing trend.",
+    "signal": "BOTH"
+  },
+  "pa_inside_bar": {
+    "category": "Price action",
+    "formula": "• Last bar high < prior high and low > prior low\n• Close in upper half + uptrend → bullish\n• Close in lower half + downtrend → bearish",
+    "explanation": "An inside bar is fully contained within the prior bar's range, representing consolidation and compressed volatility. A close in the direction of the trend often precedes continuation breakout.",
+    "signal": "BOTH"
+  },
+  "pa_nr4": {
+    "category": "Price action",
+    "formula": "• Last bar has narrowest range of the last 4 sessions\n• Direction from last bar close vs open",
+    "explanation": "NR4 marks the narrowest daily range in four sessions, signaling volatility contraction. Traders watch for an expansion move in the direction of the NR4 bar's close.",
+    "signal": "BOTH"
+  },
+  "pa_breakout_failure": {
+    "category": "Price action",
+    "formula": "• Prior bar breaks 20-day high/low\n• Current bar closes back inside the prior range\n• Failed upside break → bearish; failed downside → bullish",
+    "explanation": "A breakout failure (false breakout) occurs when price pierces a key level but fails to hold, closing back inside the range. It often traps breakout traders and signals a reversal.",
+    "signal": "BOTH"
+  },
+  "pa_double_top": {
+    "category": "Price action",
+    "formula": "• Two similar peaks within 25 bars (within 1.2%)\n• Close breaks below neckline (valley between peaks)\n• In uptrend context",
+    "explanation": "A double top forms when price tests a resistance level twice and fails to advance, then breaks below the intervening low. It is a classic bearish reversal pattern at the end of an advance.",
+    "signal": "BEARISH"
+  },
+  "pa_double_bottom": {
+    "category": "Price action",
+    "formula": "• Two similar troughs within 25 bars (within 1.2%)\n• Close breaks above neckline (peak between troughs)\n• In downtrend context",
+    "explanation": "A double bottom shows support holding twice at a similar level before price breaks above the middle peak. It signals buyers absorbing supply and a potential bullish reversal.",
+    "signal": "BULLISH"
+  },
+  "pa_head_shoulders": {
+    "category": "Price action",
+    "formula": "• Three peaks: left shoulder, higher head, right shoulder\n• Shoulders similar height; close below neckline",
+    "explanation": "Head and shoulders is a top reversal pattern with three peaks where the middle (head) is highest. A break below the neckline confirms sellers have taken control.",
+    "signal": "BEARISH"
+  },
+  "pa_inverse_head_shoulders": {
+    "category": "Price action",
+    "formula": "• Three troughs: left shoulder, lower head, right shoulder\n• Shoulders similar depth; close above neckline",
+    "explanation": "The inverse head and shoulders is a bottom reversal with a central trough lower than the two shoulders. A neckline breakout confirms bullish reversal.",
+    "signal": "BULLISH"
+  },
+  "pa_cup_handle": {
+    "category": "Price action",
+    "formula": "• U-shaped cup (8–35% depth) with similar left/right rims\n• Shallow handle pullback above cup low\n• Close breaks above rim → bullish",
+    "explanation": "Cup and handle is a bullish continuation pattern: a rounded base (cup) followed by a small pullback (handle) before resuming the uptrend. Breakout above the rim confirms continuation.",
+    "signal": "BULLISH"
+  },
+  "pa_bull_flag": {
+    "category": "Price action",
+    "formula": "• Strong pole rally (≥ 5% in first half of window)\n• Mild downward/sideways flag\n• Close breaks above flag high → bullish",
+    "explanation": "A bull flag is a brief pause after a sharp rally. The flag slopes slightly against the trend before price breaks out higher, continuing the uptrend.",
+    "signal": "BULLISH"
+  },
+  "pa_bear_flag": {
+    "category": "Price action",
+    "formula": "• Strong pole decline (≥ 5% in first half of window)\n• Mild upward/sideways flag\n• Close breaks below flag low → bearish",
+    "explanation": "A bear flag forms after a sharp decline with a small counter-trend consolidation. Breakdown from the flag signals continuation of the downtrend.",
+    "signal": "BEARISH"
+  },
+  "pa_ascending_triangle": {
+    "category": "Price action",
+    "formula": "• Flat resistance (highs within 1.5%)\n• Rising lows over 20 bars\n• Close at/above resistance → bullish",
+    "explanation": "An ascending triangle has flat overhead supply and rising support, showing buyers gradually absorbing sellers. A close above resistance targets a bullish breakout.",
+    "signal": "BULLISH"
+  },
+  "pa_descending_triangle": {
+    "category": "Price action",
+    "formula": "• Flat support (lows within 1.5%)\n• Falling highs over 20 bars\n• Close at/below support → bearish",
+    "explanation": "A descending triangle has flat support and lower highs, indicating weakening demand. A breakdown below support confirms bearish continuation.",
+    "signal": "BEARISH"
+  },
+  "pa_symmetrical_triangle": {
+    "category": "Price action",
+    "formula": "• Converging highs and lows (range narrows ≥ 40%)\n• Close above recent high → bullish; below recent low → bearish",
+    "explanation": "A symmetrical triangle shows contracting range with lower highs and higher lows. The breakout direction resolves the balance between buyers and sellers.",
+    "signal": "BOTH"
+  },
+  "pa_rectangle": {
+    "category": "Price action",
+    "formula": "• 20-bar range between 2–8% of mid-price\n• Close above range top → bullish; below bottom → bearish",
+    "explanation": "A rectangle (trading range) is horizontal support and resistance where price oscillates. Breakouts above or below the box signal the next directional move.",
+    "signal": "BOTH"
+  },
+  "pa_rising_wedge": {
+    "category": "Price action",
+    "formula": "• Both highs and lows rising; range narrowing\n• Close breaks below recent low → bearish",
+    "explanation": "A rising wedge has higher highs and higher lows but with narrowing range, often showing weakening upside momentum. A breakdown signals bearish reversal or continuation.",
+    "signal": "BEARISH"
+  },
+  "pa_falling_wedge": {
+    "category": "Price action",
+    "formula": "• Both highs and lows falling; range narrowing\n• Close breaks above recent high → bullish",
+    "explanation": "A falling wedge shows lower highs and lower lows in a contracting range, often marking selling exhaustion. An upside breakout signals bullish reversal.",
+    "signal": "BULLISH"
+  },
+  "p13_adx_trend": {
+    "category": "Technical",
+    "formula": "• ADX(14) ≥ 25 (strong trend)\n• +DI > −DI and rising → bullish\n• −DI > +DI and rising → bearish",
+    "explanation": "ADX measures trend strength regardless of direction. When ADX is elevated, +DI/−DI divergence identifies whether bulls or bears dominate the trending move.",
+    "signal": "BOTH"
+  },
+  "p14_atr_expansion": {
+    "category": "Technical",
+    "formula": "• ATR(14) > 1.2× 20-day average ATR\n• Close up → bullish; close down → bearish",
+    "explanation": "ATR expansion signals rising volatility, often accompanying breakouts or sharp moves. Direction is taken from the latest close relative to the prior bar.",
+    "signal": "BOTH"
+  },
+  "p15_obv_breakout": {
+    "category": "Technical",
+    "formula": "• OBV at 20-day high + rising close → bullish\n• OBV at 20-day low + falling close → bearish",
+    "explanation": "On-Balance Volume tracks cumulative volume flow with price. New OBV highs confirm accumulation; new lows confirm distribution.",
+    "signal": "BOTH"
+  },
+  "p16_cmf_flow": {
+    "category": "Technical",
+    "formula": "• CMF(20) > 0.05 and rising → bullish\n• CMF(20) < −0.05 and falling → bearish",
+    "explanation": "Chaikin Money Flow combines price location within the range and volume to gauge buying vs selling pressure over 20 sessions.",
+    "signal": "BOTH"
+  },
+  "p17_stochastic": {
+    "category": "Technical",
+    "formula": "• Stochastic %K(14) crosses above %D from below, %K < 80 → bullish\n• %K crosses below %D from above, %K > 20 → bearish",
+    "explanation": "The stochastic oscillator compares close to recent high-low range. Bullish/bearish crossovers of %K and %D signal momentum shifts without chasing extremes.",
+    "signal": "BOTH"
+  },
+  "p18_stoch_rsi": {
+    "category": "Technical",
+    "formula": "• StochRSI %K crosses above %D from below, %K < 80 → bullish\n• %K crosses below %D from above, %K > 20 → bearish",
+    "explanation": "Stochastic RSI applies the stochastic formula to RSI values, making RSI momentum more sensitive. Crossovers help time entries when RSI is turning but not yet overbought/oversold.",
+    "signal": "BOTH"
+  }
+}

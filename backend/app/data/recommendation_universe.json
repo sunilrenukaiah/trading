@@ -1,0 +1,38 @@
+{
+  "lookback_days": 30,
+  "eval_days": 30,
+  "top_patterns_count": 3,
+  "min_pattern_hit_rate_pct": 55,
+  "min_per_tier": 3,
+  "max_per_tier": 3,
+  "min_per_price_bucket": 3,
+  "max_per_price_bucket": 3,
+  "max_patterns_for_picks": 20,
+  "min_expected_move_inr": 1.0,
+  "reference_allocation_inr": 5500,
+  "min_net_profit_after_tax_inr": 1.0,
+  "min_relative_volume": 0.75,
+  "volume_lookback_days": 20,
+  "default_max_target_profit_pct": 50,
+  "target_atr_multiplier": 0.35,
+  "target_resistance_factor": 0.85,
+  "pattern_ranking_boost_pct": {
+    "p9_swing_structure": 9,
+    "pa_nr4": 7,
+    "cs_piercing_line": 6,
+    "cs_bullish_kicker": 6,
+    "cs_bullish_separating_lines": 6,
+    "p7_engulfing": 4,
+    "pa_falling_wedge": 0
+  },
+  "pattern_exclude_ids": [
+    "cs_tweezer_bottom"
+  ],
+  "pattern_max_picks_per_day": {
+    "p2_rsi_momentum": 2
+  },
+  "nr4_confluence_confidence_boost": 8,
+  "always_scan_nr4": true,
+  "price_buckets_inr": [100, 500, 1000],
+  "tier_budget_split_pct": 33.33
+}
