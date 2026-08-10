@@ -84,9 +84,23 @@ $env:DATABASE_URL = "postgresql+asyncpg://USER:PASSWORD@HOST/DB?ssl=require"
 .\backend\.venv\Scripts\python.exe scripts\cloud_jobs.py recommendations
 ```
 
+## Market data on Cloud
+
+Default provider is **NSE** (`DATA_PROVIDER=nse`). On Streamlit Cloud, NSE often
+returns **HTTP 403**; the app then **falls back to yfinance** automatically for
+the rest of that process.
+
+You can force Yahoo only:
+
+```toml
+DATA_PROVIDER = "yfinance"
+```
+
+Keep `nse` (default) for local India IPs — best EOD closes — with Cloud auto-fallback.
+
 ## 5. Expected behaviour
 
-- **Empty Neon** → first forced sync backfills ~120 days of NSE data, then seeds paper account.
+- **Empty Neon** → first forced sync backfills ~120 days of NSE/yfinance data, then seeds paper account.
 - **Trading UI** reads/writes the same Neon DB as Actions.
 - **Auto-sync skip:** second daily slot may no-op if post-session data is already present (same rules as local).
 - **Non-trading days:** jobs exit 0 without work.
@@ -100,6 +114,7 @@ $env:DATABASE_URL = "postgresql+asyncpg://USER:PASSWORD@HOST/DB?ssl=require"
 | `ModuleNotFoundError: plotly` | Ensure `requirements.txt` is on `main`; reboot |
 | Actions: empty `DATABASE_URL` | Add repo Actions secret |
 | Sync fails SSL | Use `?ssl=require` on the asyncpg URL |
+| NSE 403 on Cloud | Automatic yfinance fallback (or set `DATA_PROVIDER=yfinance`) |
 | Recommendations: no candle data | Run market-sync (force) first |
 | Job timeout | NIFTY250 first sync is slow; workflow allows 180 minutes |
 

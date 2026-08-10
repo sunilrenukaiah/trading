@@ -6,6 +6,11 @@ from app.providers.yfinance_provider import YFinanceProvider
 
 
 def get_market_data_provider() -> MarketDataProvider:
+    """Return the configured provider.
+
+    Default ``nse`` tries NSE first and falls back to yfinance on 403/block
+    (common on Streamlit Cloud). Set ``DATA_PROVIDER=yfinance`` to skip NSE.
+    """
     if settings.data_provider == "sharekhan":
         if not settings.sharekhan_api_key or not settings.sharekhan_customer_id:
             raise ValueError("Sharekhan API credentials not configured")
