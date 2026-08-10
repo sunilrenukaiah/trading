@@ -99,27 +99,26 @@ async def test_prune_instruments_not_in_universe_deletes_candles_and_instrument(
     )
 
     session = AsyncMock()
+    scalar_calls = {"n": 0}
 
     async def _scalars(_stmt):
-        return [keep, stale]
+        scalar_calls["n"] += 1
+        # 1st call: all instruments; later calls: paper-ref instrument ids (none)
+        if scalar_calls["n"] == 1:
+            return [keep, stale]
+        return []
 
     session.scalars = _scalars
 
     candle_result = MagicMock(rowcount=120)
     session.execute = AsyncMock(return_value=candle_result)
 
-    async def _scalar(stmt):
-        return None
-
-    session.scalar = _scalar
-    session.delete = AsyncMock()
-
     stats = await prune_instruments_not_in_universe(session, {"RELIANCE"})
 
     assert stats["candles_deleted"] == 120
     assert stats["instruments_deleted"] == 1
     assert stats["instruments_deactivated"] == 0
-    session.delete.assert_awaited_once_with(stale)
+    assert session.execute.await_count == 2  # delete candles + delete instruments
 
 
 @pytest.mark.quick
@@ -139,14 +138,17 @@ async def test_prune_instruments_keeps_candles_for_open_positions() -> None:
     )
 
     session = AsyncMock()
-    session.scalars = AsyncMock(return_value=[held])
+    scalar_calls = {"n": 0}
+
+    async def _scalars(_stmt):
+        scalar_calls["n"] += 1
+        if scalar_calls["n"] == 1:
+            return [held]
+        # Paper refs: instrument id 92 is referenced
+        return [92]
+
+    session.scalars = _scalars
     session.execute = AsyncMock()
-    session.delete = AsyncMock()
-
-    async def _scalar(stmt):
-        return 1  # has paper refs
-
-    session.scalar = _scalar
 
     stats = await prune_instruments_not_in_universe(session, {"RELIANCE"})
 
@@ -154,7 +156,6 @@ async def test_prune_instruments_keeps_candles_for_open_positions() -> None:
     assert stats["instruments_deleted"] == 0
     assert stats["candles_deleted"] == 0
     session.execute.assert_not_awaited()
-    session.delete.assert_not_awaited()
     assert held.is_active is False
 
 

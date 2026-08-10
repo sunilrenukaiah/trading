@@ -115,21 +115,33 @@ def _nifty50_symbols() -> set[str]:
 
 
 async def ensure_market_data_instruments(session: AsyncSession) -> int:
-    """Ensure NIFTY universe + open-position symbols exist for OHLCV storage."""
+    """Ensure NIFTY universe + open-position symbols exist for OHLCV storage.
+
+    Uses one SELECT for existing symbols (not per-symbol round-trips) — important
+    on remote Postgres / Neon where 250 sequential queries can take many minutes.
+    """
     symbols = await market_data_sync_symbols(session)
+    if not symbols:
+        return 0
+
     name_map = _nifty50_name_map()
     nifty50 = _nifty50_symbols()
-    added = 0
+    wanted = [s.upper() for s in symbols]
 
-    for symbol in symbols:
-        existing = await session.scalar(select(Instrument).where(Instrument.symbol == symbol))
-        if existing:
+    existing_rows = list(
+        await session.scalars(select(Instrument).where(Instrument.symbol.in_(wanted)))
+    )
+    by_symbol = {inst.symbol.upper(): inst for inst in existing_rows}
+
+    added = 0
+    for symbol in wanted:
+        existing = by_symbol.get(symbol)
+        if existing is not None:
             if existing.instrument_type == InstrumentType.EQUITY:
                 existing.is_active = True
                 existing.is_nifty50 = symbol in nifty50
             continue
 
-        is_nifty50 = symbol in nifty50
         session.add(
             Instrument(
                 symbol=symbol,
@@ -137,7 +149,7 @@ async def ensure_market_data_instruments(session: AsyncSession) -> int:
                 exchange="NSE",
                 instrument_type=InstrumentType.EQUITY,
                 yfinance_symbol=f"{symbol}.NS",
-                is_nifty50=is_nifty50,
+                is_nifty50=symbol in nifty50,
                 is_active=True,
             )
         )
@@ -308,31 +320,46 @@ async def prune_instruments_not_in_universe(
 ) -> dict[str, int]:
     """Remove delisted / non-universe equities and all their OHLCV rows."""
     allowed = {s.upper() for s in allowed_symbols}
-    instruments = list(await session.scalars(select(Instrument)))
+    instruments = list(
+        await session.scalars(
+            select(Instrument).where(Instrument.instrument_type != InstrumentType.INDEX)
+        )
+    )
+    to_review = [inst for inst in instruments if inst.symbol.upper() not in allowed]
+    if not to_review:
+        return {
+            "candles_deleted": 0,
+            "instruments_deleted": 0,
+            "instruments_deactivated": 0,
+        }
+
+    review_ids = [inst.id for inst in to_review]
+    referenced: set[int] = set()
+    for model in (PaperOrder, PaperPosition, PaperTrade):
+        rows = await session.scalars(
+            select(model.instrument_id).where(model.instrument_id.in_(review_ids)).distinct()
+        )
+        referenced.update(int(iid) for iid in rows if iid is not None)
 
     candles_deleted = 0
     instruments_deleted = 0
     instruments_deactivated = 0
+    delete_ids: list[int] = []
 
-    for inst in instruments:
-        if inst.instrument_type == InstrumentType.INDEX:
-            continue
-        if inst.symbol in allowed:
-            continue
-
-        has_refs = await _instrument_has_paper_refs(session, inst.id)
-        if has_refs:
-            # Keep OHLCV for held symbols outside NIFTY250 (e.g. CDSL); just mark inactive.
+    for inst in to_review:
+        if inst.id in referenced:
             inst.is_active = False
             instruments_deactivated += 1
             continue
+        delete_ids.append(inst.id)
 
+    if delete_ids:
         candle_result = await session.execute(
-            delete(OhlcvCandle).where(OhlcvCandle.instrument_id == inst.id)
+            delete(OhlcvCandle).where(OhlcvCandle.instrument_id.in_(delete_ids))
         )
-        candles_deleted += int(candle_result.rowcount or 0)
-        await session.delete(inst)
-        instruments_deleted += 1
+        candles_deleted = int(candle_result.rowcount or 0)
+        await session.execute(delete(Instrument).where(Instrument.id.in_(delete_ids)))
+        instruments_deleted = len(delete_ids)
 
     return {
         "candles_deleted": candles_deleted,
@@ -374,6 +401,8 @@ async def reconcile_market_data_universe(
         progress_callback(0, 1, "Removing delisted / non-universe stocks…")
     prune_stats = await prune_instruments_not_in_universe(session, allowed)
 
+    if progress_callback:
+        progress_callback(0, 1, "Ensuring NIFTY universe instruments in database…")
     await ensure_market_data_instruments(session)
     await session.commit()
 
