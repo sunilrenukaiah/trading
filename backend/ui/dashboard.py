@@ -3041,10 +3041,9 @@ def main():
         "Pattern definitions": "Pattern Definitions",
     }
     st.title(titles.get(page, "NIFTY Paper Trading"))
-    # First-paint marker for UI smoke tests / blank-tab diagnosis.
-    st.caption("App shell ready")
+    # Hidden marker for UI smoke tests / blank-tab diagnosis (not shown to users).
     st.markdown(
-        '<div id="trading-app-shell" data-testid="trading-app-shell-ready"></div>',
+        '<div id="trading-app-shell" data-testid="trading-app-shell-ready" style="display:none"></div>',
         unsafe_allow_html=True,
     )
 
