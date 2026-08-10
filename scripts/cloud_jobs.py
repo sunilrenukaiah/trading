@@ -171,10 +171,22 @@ async def _recommendations(
         )
 
     log.info(
-        "Recommendations saved — picks=%s budget_inr=%s",
+        "Recommendations saved — picks=%s budget_inr=%s prediction=%s",
         len(allocation.lines),
         budget_inr,
+        report.prediction_date,
     )
+
+    from app.services.recommendation_email import send_recommendation_email
+
+    try:
+        sent = send_recommendation_email(report, allocation)
+        if sent:
+            log.info("Evening summary email sent")
+    except Exception:
+        log.exception("Failed to send recommendation email")
+        return 1
+
     return 0
 
 

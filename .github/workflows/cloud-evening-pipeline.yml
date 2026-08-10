@@ -1,21 +1,30 @@
-# Daily recommendations after evening market sync
-# 18:15 IST = 12:45 UTC, weekdays
+# Evening pipeline: market sync → recommendations → email summary
+# 18:05 IST = 12:35 UTC (after the 18:00 sync slot; also re-syncs if needed)
 
-name: Cloud Recommendations
+name: Cloud Evening Pipeline
 
 on:
   schedule:
-    - cron: "45 12 * * 1-5"
+    - cron: "35 12 * * 1-5"
   workflow_dispatch:
+    inputs:
+      force_sync:
+        description: "Force market sync even if already done today"
+        type: boolean
+        default: false
+      force_recommendations:
+        description: "Run recommendations even before 6:00 PM IST"
+        type: boolean
+        default: false
 
 concurrency:
-  group: cloud-recommendations
+  group: cloud-evening-pipeline
   cancel-in-progress: false
 
 jobs:
-  recommendations:
+  evening:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 360
     defaults:
       run:
         working-directory: backend
@@ -57,5 +66,18 @@ jobs:
       - name: Migrate schema
         run: python ../scripts/cloud_jobs.py migrate
 
-      - name: Daily recommendations
-        run: python ../scripts/cloud_jobs.py recommendations
+      - name: Market sync
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force_sync }}" = "true" ]; then
+            python ../scripts/cloud_jobs.py market-sync --force
+          else
+            python ../scripts/cloud_jobs.py market-sync
+          fi
+
+      - name: Recommendations + email
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force_recommendations }}" = "true" ]; then
+            python ../scripts/cloud_jobs.py recommendations --force
+          else
+            python ../scripts/cloud_jobs.py recommendations
+          fi

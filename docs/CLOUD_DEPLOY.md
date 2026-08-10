@@ -101,8 +101,31 @@ Keep `nse` (default) for local India IPs — best EOD closes — with Cloud auto
 ## Evening recommendations (tomorrow’s plan)
 
 - **UI:** **Run recommendation analysis** is enabled after **6:00 PM IST** on trading days.
-- **GitHub Actions:** `cloud-recommendations.yml` runs at **18:15 IST** (after the 18:00 market sync).
+- **GitHub Actions:**
+  - `cloud-evening-pipeline.yml` at **18:05 IST** — market sync → recommendations → **email**
+  - `cloud-recommendations.yml` at **18:15 IST** — recommendations (+ email if SMTP set)
 - After session close, picks target the **next trading day** (`prediction_date`).
+
+### Email setup (free SMTP, e.g. Gmail)
+
+1. Create a Gmail [App Password](https://myaccount.google.com/apppasswords) (2FA required).
+2. GitHub → **Settings → Secrets and variables → Actions** — add:
+
+| Secret | Example |
+|--------|---------|
+| `SMTP_HOST` | `smtp.gmail.com` |
+| `SMTP_PORT` | `587` |
+| `SMTP_USE_TLS` | `true` |
+| `SMTP_USERNAME` | `you@gmail.com` |
+| `SMTP_PASSWORD` | app password |
+| `EMAIL_FROM` | `you@gmail.com` |
+| `EMAIL_TO` | `you@gmail.com` |
+| `EMAIL_ENABLED` | `true` |
+
+3. Same keys can go in Streamlit Secrets / local `backend/.env` if you send from the UI later.
+4. Test: **Actions → Cloud Evening Pipeline → Run workflow** (after market data exists).
+
+Email body includes budget summary and each allocation line (symbol, shares, buy, stop, target, net P/L).
 
 ## 5. Expected behaviour
 

@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.defaults import (
@@ -47,6 +48,39 @@ class Settings(BaseSettings):
 
     lab_mode: bool = False
     lab_schema: str | None = None
+
+    # Evening recommendation summary email (SMTP). Leave unset to skip sending.
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_use_tls: bool = True
+    email_from: str | None = None
+    email_to: str | None = None
+    email_enabled: bool = True
+
+    @field_validator("smtp_host", "smtp_username", "smtp_password", "email_from", "email_to", mode="before")
+    @classmethod
+    def _empty_str_to_none(cls, value: object) -> object:
+        if value == "":
+            return None
+        return value
+
+    @field_validator("smtp_port", mode="before")
+    @classmethod
+    def _default_smtp_port(cls, value: object) -> object:
+        if value is None or value == "":
+            return 587
+        return value
+
+    @field_validator("smtp_use_tls", "email_enabled", mode="before")
+    @classmethod
+    def _empty_bool_default(cls, value: object, info) -> object:
+        if value is None or value == "":
+            return True if info.field_name == "email_enabled" else True
+        if isinstance(value, str):
+            return value.strip().lower() in {"1", "true", "yes", "on"}
+        return value
 
 
 settings = Settings()
