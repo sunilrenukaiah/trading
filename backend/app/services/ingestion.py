@@ -488,7 +488,15 @@ async def backfill_candles(
     *,
     reconcile: bool = True,
 ) -> dict:
-    """Pull only missing OHLCV from NSE — the sole internet-facing ingestion path."""
+    """Pull only missing OHLCV from the market-data provider (NSE, with yfinance fallback)."""
+    if settings.data_provider == "nse":
+        try:
+            from app.providers.nse_provider import probe_nse_session
+
+            probe_nse_session()
+        except Exception:
+            log.debug("NSE probe skipped", exc_info=True)
+
     provider = get_market_data_provider()
     backfill_days = effective_backfill_days(days)
     end = market_data_sync_end_date()
@@ -606,11 +614,25 @@ async def sync_latest(
             market_data_universe(),
             settings.backfill_days,
         )
-        result = await backfill_candles(
-            days=settings.backfill_days,
-            progress_callback=progress_callback,
-            reconcile=True,
-        )
+        try:
+            result = await backfill_candles(
+                days=settings.backfill_days,
+                progress_callback=progress_callback,
+                reconcile=True,
+            )
+        except Exception as exc:
+            # Cloud/NSE blocks often escape as generic errors — force Yahoo and retry once.
+            if settings.data_provider != "nse":
+                raise
+            from app.providers.nse_provider import _activate_yfinance_fallback
+
+            _activate_yfinance_fallback(exc)
+            log.warning("Market sync retrying with yfinance after failure: %s", exc)
+            result = await backfill_candles(
+                days=settings.backfill_days,
+                progress_callback=progress_callback,
+                reconcile=True,
+            )
         log.info(
             "Market sync finished inserted=%s data_through=%s",
             result.get("inserted"),

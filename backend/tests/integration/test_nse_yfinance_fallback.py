@@ -23,11 +23,19 @@ def test_nse_access_failure_detects_403_session() -> None:
 
 
 @pytest.mark.quick
+def test_nse_connection_error_counts_as_access_failure() -> None:
+    from nsefeed.exceptions import NSEConnectionError
+
+    reset_nse_yfinance_fallback_for_tests()
+    assert _is_nse_access_failure(NSEConnectionError("session failed"))
+
+
+@pytest.mark.quick
 def test_activate_yfinance_fallback_is_sticky() -> None:
     reset_nse_yfinance_fallback_for_tests()
-    assert _NSE_FORCE_YFINANCE is False
-    _activate_yfinance_fallback("403 Forbidden")
     from app.providers import nse_provider as mod
 
+    assert mod._NSE_FORCE_YFINANCE is False
+    _activate_yfinance_fallback("403 Forbidden")
     assert mod._NSE_FORCE_YFINANCE is True
     reset_nse_yfinance_fallback_for_tests()

@@ -569,7 +569,8 @@ def _render_market_data_simulation_section(md_stats) -> None:
     st.subheader("Market data & simulation")
     st.caption(
         "All charts, backtests, and recommendations read from the **local market-data table**. "
-        "Only **Refresh market data** on the sidebar connects to NSE to fill missing prices."
+        "Only **Refresh market data** on the sidebar downloads prices (**NSE first**, "
+        "automatic **yfinance** fallback if NSE is blocked — common on Streamlit Cloud)."
     )
     if md_stats.earliest_date and md_stats.latest_date:
         date_range = (

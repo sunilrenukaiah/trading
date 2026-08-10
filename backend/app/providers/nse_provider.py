@@ -36,6 +36,8 @@ def reset_nse_yfinance_fallback_for_tests() -> None:
 
 def _is_nse_access_failure(exc: BaseException) -> bool:
     """True for blocked/forbidden NSE sessions (typical on Streamlit Cloud)."""
+    if isinstance(exc, NSEConnectionError):
+        return True
     msg = str(exc).lower()
     markers = (
         "403",
@@ -45,9 +47,14 @@ def _is_nse_access_failure(exc: BaseException) -> bool:
         "blocked",
         "too many requests",
         "429",
+        "nseindia",
+        "nse connection",
     )
     if any(m in msg for m in markers):
         return True
+    cause = exc.__cause__ or exc.__context__
+    if cause is not None and cause is not exc:
+        return _is_nse_access_failure(cause)
     name = type(exc).__name__.lower()
     return "http" in name and ("403" in msg or "forbidden" in msg)
 
@@ -57,6 +64,34 @@ def _activate_yfinance_fallback(reason: BaseException | str) -> None:
     if not _NSE_FORCE_YFINANCE:
         log.warning("NSE unavailable (%s); falling back to yfinance", reason)
     _NSE_FORCE_YFINANCE = True
+
+
+def nse_forced_to_yfinance() -> bool:
+    return _NSE_FORCE_YFINANCE
+
+
+def probe_nse_session(*, trading_day: date | None = None) -> bool:
+    """
+    Light NSE reachability check. On failure, sticky-switch to yfinance.
+
+    Returns True when NSE responded; False when fallback was activated.
+    """
+    if _NSE_FORCE_YFINANCE:
+        return False
+    day = trading_day or date.today()
+    scraper = BhavCopyScraper(use_cache=True)
+    # Walk back a few calendar days to find a session file worth probing.
+    for _ in range(10):
+        if is_trading_day(day):
+            try:
+                scraper.fetch_for_date(day)
+                return True
+            except Exception as exc:
+                _activate_yfinance_fallback(exc)
+                return False
+        day -= timedelta(days=1)
+    _activate_yfinance_fallback("no recent NSE trading day to probe")
+    return False
 
 
 def _yfinance_index_symbol(market_symbol: str) -> str:
@@ -108,7 +143,6 @@ class NSEProvider(MarketDataProvider):
     ) -> list[CandleData]:
         candles: list[CandleData] = []
         current = start
-        access_failures = 0
 
         while current <= end:
             if is_trading_day(current):
@@ -135,16 +169,14 @@ class NSEProvider(MarketDataProvider):
                                 )
                             )
                 except (NSEDataNotFoundError, NSEConnectionError) as exc:
-                    if _is_nse_access_failure(exc):
-                        access_failures += 1
-                        if access_failures >= 2:
-                            _activate_yfinance_fallback(exc)
-                            raise
-                except Exception as exc:
-                    if _is_nse_access_failure(exc):
+                    # Connection errors are usually Cloud IP blocks — fail over immediately.
+                    if isinstance(exc, NSEConnectionError) or _is_nse_access_failure(exc):
                         _activate_yfinance_fallback(exc)
                         raise
-                    log.debug("NSE candle skip %s %s: %s", symbol, current, exc)
+                except Exception as exc:
+                    # Any unexpected NSE/scraper failure → yfinance (do not abort the sync job).
+                    _activate_yfinance_fallback(exc)
+                    raise
             current += timedelta(days=1)
 
         return candles
@@ -164,10 +196,9 @@ class NSEProvider(MarketDataProvider):
         try:
             candles = self._fetch_nse_equity_candles(symbol, start, end)
         except Exception as exc:
-            if _is_nse_access_failure(exc) or _NSE_FORCE_YFINANCE:
-                _activate_yfinance_fallback(exc)
-                return self._yf_candles(symbol, start, end)
-            raise
+            # Prefer Yahoo over failing the whole market-sync job.
+            _activate_yfinance_fallback(exc)
+            return self._yf_candles(symbol, start, end)
 
         # Silent per-day failures (empty over a wide window) → try Yahoo once.
         if not candles and (end - start).days >= 5:
