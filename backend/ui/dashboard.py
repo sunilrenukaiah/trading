@@ -2346,8 +2346,8 @@ def _render_recommendations_body(budget: float, default_budget: float) -> None:
         eval_days = int(rec_cfg.get("eval_days", 30))
         lookback_days = int(rec_cfg.get("lookback_days", 30))
         st.info(
-            "Click **Run recommendation analysis** to scan all NIFTY250 stocks, "
-            f"rank patterns on the last {eval_days} trading days, and build tomorrow's trade plan."
+            "After **6:00 PM IST** on trading days, click **Run recommendation analysis** to scan "
+            "NIFTY250, rank patterns, and build **tomorrow's** trade plan from post-session data."
         )
         with st.expander("How it works"):
             st.markdown(
@@ -2451,10 +2451,39 @@ def render_recommendations_page():
     st.session_state["rec_budget"] = budget
     st.session_state["rec_max_target_pct"] = max_target_pct
 
+    from app.services.market_calendar import (
+        IST,
+        is_evening_recommendation_ready,
+        recommendation_prediction_date,
+    )
+    from datetime import datetime
+
+    evening_ready = is_evening_recommendation_ready()
+    if evening_ready:
+        # Preview the date picks will target once analysis uses latest OHLC.
+        from app.services.simulation_cache import today_ist
+
+        preview = recommendation_prediction_date(today_ist())
+        st.caption(
+            f"Evening window open — analysis builds the trade plan for "
+            f"**{preview.strftime('%d %b %Y')}** (next session after today’s close)."
+        )
+    else:
+        now_ist = datetime.now(IST)
+        st.info(
+            "Recommendations for **tomorrow** are available after **6:00 PM IST** on trading days "
+            f"(after the 6:00 PM market-data sync). Current time: "
+            f"**{now_ist.strftime('%H:%M')} IST**."
+        )
+
     run_clicked = st.button(
         "Run recommendation analysis",
         type="primary",
-        disabled=is_kind_running(JobKind.RECOMMENDATIONS),
+        disabled=is_kind_running(JobKind.RECOMMENDATIONS) or not evening_ready,
+        help=(
+            "Runs after 6:00 PM IST on trading days so picks use post-session market data "
+            "and target the next trading session."
+        ),
     )
 
     if run_clicked:

@@ -99,12 +99,14 @@ async def _market_sync(*, force: bool) -> int:
     return 0
 
 
-async def _recommendations(*, budget_inr: float, max_target_profit_pct: float | None) -> int:
+async def _recommendations(
+    *, budget_inr: float, max_target_profit_pct: float | None, force: bool = False
+) -> int:
     from datetime import datetime
 
     from app.db.ui_session import ui_session
     from app.services.budget_allocator import allocate_budget
-    from app.services.market_calendar import IST, is_trading_day
+    from app.services.market_calendar import IST, is_evening_recommendation_ready
     from app.services.recommendation_cache import save_recommendation_snapshot
     from app.services.recommendation_engine import (
         load_market_universe_candles_from_db,
@@ -116,8 +118,11 @@ async def _recommendations(*, budget_inr: float, max_target_profit_pct: float | 
     from app.services.backtest import min_candles_for_simulation
 
     now = datetime.now(IST)
-    if not is_trading_day(now.date()):
-        log.info("Skipping recommendations — not an NSE trading day (%s)", now.date())
+    if not force and not is_evening_recommendation_ready(now=now):
+        log.info(
+            "Skipping recommendations — evening window opens at 6:00 PM IST (now %s)",
+            now.strftime("%H:%M %Z"),
+        )
         return 0
 
     await _seed()
@@ -177,9 +182,15 @@ def cmd_market_sync(*, force: bool) -> int:
     return asyncio.run(_market_sync(force=force))
 
 
-def cmd_recommendations(*, budget_inr: float, max_target_profit_pct: float | None) -> int:
+def cmd_recommendations(
+    *, budget_inr: float, max_target_profit_pct: float | None, force: bool = False
+) -> int:
     return asyncio.run(
-        _recommendations(budget_inr=budget_inr, max_target_profit_pct=max_target_profit_pct)
+        _recommendations(
+            budget_inr=budget_inr,
+            max_target_profit_pct=max_target_profit_pct,
+            force=force,
+        )
     )
 
 
@@ -211,6 +222,11 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Optional max target profit %% cap",
     )
+    rec_p.add_argument(
+        "--force",
+        action="store_true",
+        help="Run even before 6:00 PM IST evening window",
+    )
 
     args = parser.parse_args(argv)
     log.info("DATABASE_URL host from settings (password redacted)")
@@ -229,6 +245,7 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_recommendations(
             budget_inr=budget,
             max_target_profit_pct=args.max_target_profit_pct,
+            force=args.force,
         )
     return 1
 

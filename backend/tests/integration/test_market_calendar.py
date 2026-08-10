@@ -155,3 +155,12 @@ def test_recommendation_prediction_on_weekend() -> None:
 
     now = IST_DT(2026, 8, 1, 12, 0)  # Saturday
     assert recommendation_prediction_date(date(2026, 7, 31), now=now) == date(2026, 8, 3)
+
+
+@pytest.mark.quick
+def test_evening_recommendation_ready_after_6pm() -> None:
+    from app.services.market_calendar import is_evening_recommendation_ready
+
+    assert is_evening_recommendation_ready(now=IST_DT(2026, 7, 30, 17, 59)) is False
+    assert is_evening_recommendation_ready(now=IST_DT(2026, 7, 30, 18, 0)) is True
+    assert is_evening_recommendation_ready(now=IST_DT(2026, 8, 1, 10, 0)) is True  # Saturday

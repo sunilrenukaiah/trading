@@ -18,6 +18,8 @@ NSE_SQUARE_OFF = time(15, 25)
 NSE_MISSED_PROFITABLE_CUTOFF = time(15, 45)
 # Mid-day recommendation re-analysis available from this time through session end.
 NSE_MIDDAY_ANALYSIS_START = time(11, 45)
+# Final "recommendations for tomorrow" after post-session market sync (6:00 PM IST).
+NSE_EVENING_RECOMMENDATION_READY = time(18, 0)
 
 _HOLIDAYS_PATH = Path(__file__).resolve().parent.parent / "data" / "nse_trading_holidays.json"
 
@@ -215,6 +217,25 @@ def is_midday_analysis_ready(*, now: datetime | None = None) -> bool:
         return False
     t = current.time()
     return NSE_MIDDAY_ANALYSIS_START <= t < NSE_EOD_CUTOFF
+
+
+def is_evening_recommendation_ready(*, now: datetime | None = None) -> bool:
+    """
+    True when the evening "recommendations for tomorrow" run may start.
+
+    On trading days: at/after 6:00 PM IST (after the 6:00 PM market-data sync slot).
+    On weekends/holidays: always True (plan for the next trading session).
+    """
+    current = now or datetime.now(IST)
+    if current.tzinfo is None:
+        current = current.replace(tzinfo=IST)
+    else:
+        current = current.astimezone(IST)
+
+    today = current.date()
+    if not is_trading_day(today):
+        return True
+    return current.time() >= NSE_EVENING_RECOMMENDATION_READY
 
 
 def market_data_sync_end_date(*, now: datetime | None = None) -> date:

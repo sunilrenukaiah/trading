@@ -588,7 +588,11 @@ def start_recommendations_job(
     *,
     max_target_profit_pct: float | None = None,
 ) -> str | None:
+    from app.services.market_calendar import is_evening_recommendation_ready
     from ui.streamlit_imports import ensure_recommendation_helpers_fresh
+
+    if not is_evening_recommendation_ready():
+        return None
 
     ensure_recommendation_helpers_fresh()
     from ui.recommendation_helpers import run_recommendation_analysis

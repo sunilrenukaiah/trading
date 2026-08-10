@@ -98,6 +98,12 @@ DATA_PROVIDER = "yfinance"
 
 Keep `nse` (default) for local India IPs — best EOD closes — with Cloud auto-fallback.
 
+## Evening recommendations (tomorrow’s plan)
+
+- **UI:** **Run recommendation analysis** is enabled after **6:00 PM IST** on trading days.
+- **GitHub Actions:** `cloud-recommendations.yml` runs at **18:15 IST** (after the 18:00 market sync).
+- After session close, picks target the **next trading day** (`prediction_date`).
+
 ## 5. Expected behaviour
 
 - **Empty Neon** → first forced sync backfills ~120 days of NSE/yfinance data, then seeds paper account.
