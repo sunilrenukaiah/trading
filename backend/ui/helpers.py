@@ -117,10 +117,11 @@ def ensure_ready() -> bool:
     if st is not None and st.session_state.get("_db_ready_checked"):
         return bool(st.session_state.get("_db_ready", False))
 
+    status = st.empty() if st is not None else None
     ready = False
     try:
-        if st is not None:
-            st.caption("Connecting to database…")
+        if status is not None:
+            status.caption("Connecting to database…")
         _prepare_database_url_from_runtime()
 
         from app.logging_setup import configure_app_logging
@@ -130,16 +131,19 @@ def ensure_ready() -> bool:
         configure_app_logging()
         install_audit_hooks()
         get_applicable_rates()
-        if st is not None:
-            st.caption("Running database migrations…")
+        if status is not None:
+            status.caption("Running database migrations…")
         run_migrations()
-        if st is not None:
-            st.caption("Seeding paper account…")
+        if status is not None:
+            status.caption("Seeding paper account…")
         # Keep bootstrap short — do not wait an hour on a bad DB URL.
         run_async(_bootstrap_if_needed(), timeout=120, retries=0)
         ready = True
     except Exception:
         ready = False
+    finally:
+        if status is not None:
+            status.empty()
 
     if st is not None:
         try:
